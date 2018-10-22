@@ -16,11 +16,12 @@ public class Packet{
 	timeToDest = 0;
     }
 
-    public Packet(int newPacketSize){
+    public Packet(int newPacketSize, int newTimeArrive){
 	packetCount++;
 	id = packetCount;
 	packetSize = newPacketSize;
-
+	timeArrive = newTimeArrive;
+	timeToDest = packetSize/100;
     }
 
     public int getPacketCount(){
@@ -74,10 +75,10 @@ public class Packet{
     }
 
     public String toString(){
-	String output = "\n[";
+	String output = "[";
 	output += id + ", ";
 	output += timeArrive + ", ";
-	output += timeToDest + "]\n";
+	output += timeToDest + "]";
 	return output;
     }
 
