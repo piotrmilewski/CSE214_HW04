@@ -3,8 +3,8 @@ import java.util.LinkedList;
 
 public class Simulator{
 
-    Router dispatcher; //level 1 router
-    static LinkedList<Router> routerLL = new LinkedList<Router>(); //level 2 routers
+    static Router dispatcher; //level 1 router
+    static LinkedList<Router> routers = new LinkedList<Router>(); //level 2 routers
     static int totalServiceTime; //sum of total time of each packt in the network
     static int totalPacketsArrived;
     static int packetsDropped; //only incremented when sendPacketTo() throws an exception
@@ -48,7 +48,7 @@ public class Simulator{
 	int innerBandwidth = bandwidth;
 	boolean ifPacketsCreated = false;
 	Packet newPacket;
-	LinkedList<Packet> packetLL = new LinkedList<Packet>();
+	dispatcher = new Router();
 	
 	System.out.println("\nTime: " + timeElapsed);
 
@@ -60,17 +60,15 @@ public class Simulator{
 		newPacket = new Packet(packetSize, timeElapsed);
 		System.out.print("Packet " + newPacket.getId() + " arrives at dispatcher ");
 		System.out.print("with size " + newPacket.getPacketSize() + ".\n");
-		packetLL.addLast(newPacket);
+		dispatcher.enqueue(newPacket);
 	    }
 	    innerBandwidth--;
-	}
+	}	
 	if (!ifPacketsCreated)
 	    System.out.print("No packets arrived.\n");
-	System.out.println(packetLL);
-	System.out.println(packetLL.peek());
 
 	//Sending Packets to Router
-	routerIndex = Router.sendPacketTo(routerLL);
+	routerIndex = Router.sendPacketTo(routers);
 	
 	return 1.0;
     }
@@ -147,8 +145,15 @@ public class Simulator{
 	    //CREATE ROUTERS--------------------------------------------------------------------------
 	    int innerNumIntRouters = numIntRouters;
 	    Router newRouter;
-	    //while (innerNumIntRouters > 0){
-	    //	newRouter = new Router(maxBufferSize);
+	    while (innerNumIntRouters > 0){
+		if (innerNumIntRouters == numIntRouters)
+		    newRouter = new Router(maxBufferSize);
+		else
+		    newRouter = new Router();
+		routers.addLast(newRouter);
+		innerNumIntRouters--;
+	    }
+	    System.out.println(routers);
 		
 	    
 	    while (timeElapsed <= duration){

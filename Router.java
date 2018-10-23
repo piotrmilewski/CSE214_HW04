@@ -33,7 +33,7 @@ public class Router extends LinkedList<Packet>{
 	    System.out.println("\nQueue is empty.\n");
 	    return null;
 	}
-	return queue.getFirst();
+	return queue.peek();
     }
 
     public int size(){
@@ -45,19 +45,18 @@ public class Router extends LinkedList<Packet>{
     }
 
     public String toString(){
-	String output = "\n{";
+	String output = "{";
 	if (isEmpty()){ //Check if queue is empty
-	    output += "}\n";
+	    output += "}";
 	    return output;
 	}
-	else{ //Add first packet if not empty
-	    output += "[" + queue.getFirst() + "]";
-	}
-	ListIterator<Packet> litr = queue.listIterator(0);
+	ListIterator<Packet> litr = queue.listIterator();
 	while (litr.hasNext()){ //Iterate through queue and add each packet
-	    output += ", [" + litr.next() + "]";
+	    output += litr.next();
+	    if (litr.hasNext())
+		output += ", ";
 	}
-	output += "}\n";
+	output += "}";
 	return output;
     }
 
@@ -70,11 +69,6 @@ public class Router extends LinkedList<Packet>{
 	if (routers.size() == 0){ //No routers
 	    System.out.println("\nNo Routers instantiated\n");
 	    return 0;
-	}
-	else if (routers.getFirst().size() < freeSize){ //set index to first router
-	    areRoutersFull = false;
-	    index = 1;
-	    freeSize = routers.getFirst().size();
 	}
 	ListIterator<Router> litr = routers.listIterator(0);
 	while (litr.hasNext()){

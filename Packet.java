@@ -3,7 +3,7 @@ import java.io.*;
 public class Packet{
 
     static int packetCount = 0;
-    int id;
+    int id = 0;
     int packetSize;
     int timeArrive;
     int timeToDest;
@@ -76,6 +76,8 @@ public class Packet{
 
     public String toString(){
 	String output = "[";
+	if (id == 0)
+	    return output + "]";
 	output += id + ", ";
 	output += timeArrive + ", ";
 	output += timeToDest + "]";
