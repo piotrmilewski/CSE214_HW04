@@ -205,7 +205,7 @@ public class Simulator{
 		timeElapsed++;
 	    }
 
-	    System.out.println("Simulation ending...");
+	    System.out.println("\nSimulation ending...");
 	    System.out.println("Total service time: " + totalServiceTime);
 	    System.out.println("Total packets served: " + totalPacketsArrived);
 	    String strDouble = String.format("%.2f", ((double)totalServiceTime)/((double)totalPacketsArrived));
