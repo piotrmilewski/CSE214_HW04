@@ -1,3 +1,14 @@
+/**
+ * The <code>Router</code> class represents a router in the network, which is ultimately a queue. This
+ * queue is represented by the <code>LinkedList</code> class which extends the <code>Router</code> class.
+ * This class also uses the <code>Packet</code> class to store the packets it receives.
+ *
+ *
+ * @author Piotr Milewski
+ *    email: piotr.milewski@stonybrook.edu
+ *    Stony Brook ID: 112291666
+ **/
+
 import java.io.*;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -72,13 +83,13 @@ public class Router extends LinkedList<Packet>{
 	}
 	ListIterator<Router> litr = routers.listIterator(0);
 	while (litr.hasNext()){
-	    counter++;
 	    currRouter = litr.next();
 	    if (currRouter.size() < freeSize){
 		areRoutersFull = false;
 		index = counter;
 		freeSize = currRouter.size();
 	    }
+	    counter++;
 	}
 	if (areRoutersFull) //if all router queues are full, drop the packet (send -1)
 	    return -1;

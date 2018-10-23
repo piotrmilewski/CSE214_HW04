@@ -1,3 +1,14 @@
+/**
+ * The <code>Simulator</code> class contains the main method that will be used to test the simulation. This
+ * class utilizes the <code>Packet</code> and <code>Router</code> classes to send the respective packets
+ * to their various destinations represented by the routers.
+ *
+ *
+ * @author Piotr Milewski
+ *    email: piotr.milewski@stonybrook.edu
+ *    Stony Brook ID: 112291666
+ **/
+
 import java.io.*;
 import java.util.LinkedList;
 
@@ -5,9 +16,9 @@ public class Simulator{
 
     static Router dispatcher; //level 1 router
     static LinkedList<Router> routers = new LinkedList<Router>(); //level 2 routers
-    static int totalServiceTime; //sum of total time of each packt in the network
-    static int totalPacketsArrived;
-    static int packetsDropped; //only incremented when sendPacketTo() throws an exception
+    static int totalServiceTime = 0; //sum of total time of each packt in the network
+    static int totalPacketsArrived = 0;
+    static int packetsDropped = 0; //only incremented when sendPacketTo() throws an exception
     static double arrivalProb;
     static int numIntRouters;
     static int maxBufferSize; //max # of Packets a Router can accomodate
@@ -47,7 +58,7 @@ public class Simulator{
 	int routerIndex, packetSize;
 	int innerBandwidth = bandwidth;
 	boolean ifPacketsCreated = false;
-	Packet newPacket;
+	Packet newPacket, sentPacket, processPacket;
 	dispatcher = new Router();
 	
 	System.out.println("\nTime: " + timeElapsed);
@@ -66,9 +77,42 @@ public class Simulator{
 	}	
 	if (!ifPacketsCreated)
 	    System.out.print("No packets arrived.\n");
-
+	
 	//Sending Packets to Router
-	routerIndex = Router.sendPacketTo(routers);
+	while (!(dispatcher.isEmpty())){
+	    routerIndex = Router.sendPacketTo(routers);
+	    sentPacket = dispatcher.dequeue();
+	    if (routerIndex == -1){
+		packetsDropped++;
+		System.out.println("Network is congested. Packet " + sentPacket.getId() + " is dropped.");
+	    }
+	    else{
+		routers.get(routerIndex-1).enqueue(sentPacket);
+		System.out.println("Packet " + sentPacket.getId() + " sent to Router " + routerIndex + ".");
+	    }
+	}
+	
+	//Process Router packets
+	for (int count = 0; count < numIntRouters; count++){
+	    if (!(routers.get(count).isEmpty())){
+		processPacket = routers.get(count).peek();
+		if (!(processPacket.getTimeArrive() == timeElapsed)){
+		    processPacket.setTimeToDest(processPacket.getTimeToDest()-1);
+		    totalServiceTime++;
+		    if (processPacket.getTimeToDest() <= 0){
+			processPacket = routers.get(count).dequeue();
+			totalPacketsArrived++;
+			System.out.print("Packet " + processPacket.getId() + " has successfully reached ");
+			System.out.println("its destination: +" + (timeElapsed - processPacket.getTimeArrive()));
+		    }
+		}
+	    }
+	}
+	
+	//Display all routers
+	for (int count = 0; count < numIntRouters; count++){
+	    System.out.println("R" + (count+1) + ": " + routers.get(count));
+	}
 	
 	return 1.0;
     }
@@ -161,6 +205,13 @@ public class Simulator{
 		timeElapsed++;
 	    }
 
+	    System.out.println("Simulation ending...");
+	    System.out.println("Total service time: " + totalServiceTime);
+	    System.out.println("Total packets served: " + totalPacketsArrived);
+	    String strDouble = String.format("%.2f", ((double)totalServiceTime)/((double)totalPacketsArrived));
+	    System.out.println("Average service time per packet: " + strDouble);
+	    System.out.println("Total packets dropped: " + packetsDropped);
+	    
 	    running = true;
 	    while (running){
 		try{	    

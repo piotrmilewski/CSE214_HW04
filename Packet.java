@@ -1,3 +1,12 @@
+/**
+ * The <code>Packet</code> class represents a packet that will be sent through the network.
+ *
+ *
+ * @author Piotr Milewski
+ *    email: piotr.milewski@stonybrook.edu
+ *    Stony Brook ID: 112291666
+ **/
+
 import java.io.*;
 
 public class Packet{
