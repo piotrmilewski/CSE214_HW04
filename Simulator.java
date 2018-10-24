@@ -96,19 +96,35 @@ public class Simulator{
 	//Process Router packets
 	int tempBandwidth = bandwidth;
 	for (int count = 0; count < numIntRouters; count++){
-	    if (!(routers.get(count).isEmpty())){
+	    if (!routers.get(count).isEmpty()){
 		processPacket = routers.get(count).peek();
 		if (!(processPacket.getTimeArrive() == timeElapsed)){
 		    processPacket.setTimeToDest(processPacket.getTimeToDest()-1);
-		    totalServiceTime++;
-		    if (processPacket.getTimeToDest() <= 0 && tempBandwidth > 0){
-			tempBandwidth--;
-			processPacket = routers.get(count).dequeue();
-			totalPacketsArrived++;
-			System.out.print("Packet " + processPacket.getId() + " has successfully reached ");
-			System.out.println("its destination: +" + (timeElapsed - processPacket.getTimeArrive()));
+		}
+	    }
+	}
+
+	int getRidOff = 0;
+	while (tempBandwidth > 0 && getRidOff != -1){
+	    int fairness = 1;
+	    getRidOff = -1;
+	    for (int count = 0; count < numIntRouters; count++){
+		if (!routers.get(count).isEmpty()){
+		    processPacket = routers.get(count).peek();
+		    int TimeToDest = processPacket.getTimeToDest();
+		    if (TimeToDest < fairness){
+			getRidOff = count;
+			fairness = TimeToDest;
 		    }
 		}
+	    }
+	    if (getRidOff != -1){
+		tempBandwidth--;
+		processPacket = routers.get(getRidOff).dequeue();
+		totalPacketsArrived++;
+		totalServiceTime += (timeElapsed - processPacket.getTimeArrive());
+		System.out.print("Packet " + processPacket.getId() + " has successfully reached ");
+		System.out.println("its destination: +" + (timeElapsed - processPacket.getTimeArrive()));
 	    }
 	}
 	
@@ -210,7 +226,11 @@ public class Simulator{
 	    System.out.println("\nSimulation ending...");
 	    System.out.println("Total service time: " + totalServiceTime);
 	    System.out.println("Total packets served: " + totalPacketsArrived);
-	    String strDouble = String.format("%.2f", ((double)totalServiceTime)/((double)totalPacketsArrived));
+	    String strDouble;
+	    if (totalPacketsArrived > 0)
+		strDouble = String.format("%.2f", ((double)totalServiceTime)/((double)totalPacketsArrived));
+	    else
+		strDouble = String.format("%.2f", 0.0);
 	    System.out.println("Average service time per packet: " + strDouble);
 	    System.out.println("Total packets dropped: " + packetsDropped);
 	    
@@ -222,6 +242,9 @@ public class Simulator{
 		    if (input.equals("y")){
 			Packet.setPacketCount(0);
 			routers = new LinkedList<Router>(); //level 2 routers
+			totalServiceTime = 0;
+			totalPacketsArrived = 0;
+			packetsDropped = 0;
 			running = false;
 		    }
 		    else if (input.equals("n")){
