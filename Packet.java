@@ -33,11 +33,11 @@ public class Packet{
 	timeToDest = packetSize/100;
     }
 
-    public int getPacketCount(){
+    public static int getPacketCount(){
 	return packetCount;
     }
 
-    public int setPacketCount(int newPacketCount){
+    public static int setPacketCount(int newPacketCount){
 	int oldPacketCount = packetCount;
 	packetCount = newPacketCount;
 	return oldPacketCount;

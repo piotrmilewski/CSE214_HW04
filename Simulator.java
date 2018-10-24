@@ -14,6 +14,7 @@ import java.util.LinkedList;
 
 public class Simulator{
 
+    static final int numOfDispatcherPackets = 5;
     static Router dispatcher; //level 1 router
     static LinkedList<Router> routers = new LinkedList<Router>(); //level 2 routers
     static int totalServiceTime = 0; //sum of total time of each packt in the network
@@ -56,7 +57,7 @@ public class Simulator{
 
     public static double simulate(){
 	int routerIndex, packetSize;
-	int innerBandwidth = bandwidth;
+	int innerDispatcherPackets = numOfDispatcherPackets;
 	boolean ifPacketsCreated = false;
 	Packet newPacket, sentPacket, processPacket;
 	dispatcher = new Router();
@@ -64,7 +65,7 @@ public class Simulator{
 	System.out.println("\nTime: " + timeElapsed);
 
 	//Creation of Packets sent to dispatcher
-	while (innerBandwidth > 0){
+	while (innerDispatcherPackets > 0){
 	    if (Math.random() < arrivalProb){
 		ifPacketsCreated = true;
 		packetSize = randInt(minPacketSize, maxPacketSize);
@@ -73,7 +74,7 @@ public class Simulator{
 		System.out.print("with size " + newPacket.getPacketSize() + ".\n");
 		dispatcher.enqueue(newPacket);
 	    }
-	    innerBandwidth--;
+	    innerDispatcherPackets--;
 	}	
 	if (!ifPacketsCreated)
 	    System.out.print("No packets arrived.\n");
@@ -93,13 +94,15 @@ public class Simulator{
 	}
 	
 	//Process Router packets
+	int tempBandwidth = bandwidth;
 	for (int count = 0; count < numIntRouters; count++){
 	    if (!(routers.get(count).isEmpty())){
 		processPacket = routers.get(count).peek();
 		if (!(processPacket.getTimeArrive() == timeElapsed)){
 		    processPacket.setTimeToDest(processPacket.getTimeToDest()-1);
 		    totalServiceTime++;
-		    if (processPacket.getTimeToDest() <= 0){
+		    if (processPacket.getTimeToDest() <= 0 && tempBandwidth > 0){
+			tempBandwidth--;
 			processPacket = routers.get(count).dequeue();
 			totalPacketsArrived++;
 			System.out.print("Packet " + processPacket.getId() + " has successfully reached ");
@@ -197,7 +200,6 @@ public class Simulator{
 		routers.addLast(newRouter);
 		innerNumIntRouters--;
 	    }
-	    System.out.println(routers);
 		
 	    
 	    while (timeElapsed <= duration){
@@ -217,8 +219,11 @@ public class Simulator{
 		try{	    
 		    System.out.print("\nDo you want to try another simulation? (y/n): ");
 		    input = stdin.readLine();
-		    if (input.equals("y"))
+		    if (input.equals("y")){
+			Packet.setPacketCount(0);
+			routers = new LinkedList<Router>(); //level 2 routers
 			running = false;
+		    }
 		    else if (input.equals("n")){
 			running = false;
 			runSimulation = false;
